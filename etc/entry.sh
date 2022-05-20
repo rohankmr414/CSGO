@@ -11,6 +11,11 @@ if [ ! -f "${STEAMAPPDIR}/${STEAMAPP}/cfg/server.cfg" ]; then
 	# Download & extract the config
 	wget -qO- "${DLURL}/master/etc/cfg.tar.gz" | tar xvzf - -C "${STEAMAPPDIR}/${STEAMAPP}"
 
+	# Are we in a csay container?
+	if [ "$CSAY" == "true" ]; then
+		wget -q "http://www.esport-tools.net/download/CSay-CSGO.zip" && unzip CSay-CSGO.zip -d "${STEAMAPPDIR}/${STEAMAPP}" && rm CSay-CSGO.zip
+	fi
+
 	# Change hostname on first launch (you can comment this out if it has done its purpose)
 	sed -i -e 's/{{SERVER_HOSTNAME}}/'"${SRCDS_HOSTNAME}"'/g' "${STEAMAPPDIR}/${STEAMAPP}/cfg/server.cfg"
 fi

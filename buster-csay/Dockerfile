@@ -3,22 +3,26 @@
 ###########################################################
 FROM cm2network/steamcmd:root
 
-LABEL maintainer="walentinlamonos@gmail.com"
+LABEL maintainer="rohankmr414@gmail.com"
+
+ENV CSAY true
 
 ENV STEAMAPPID 740
 ENV STEAMAPP csgo
 ENV STEAMAPPDIR "${HOMEDIR}/${STEAMAPP}-dedicated"
 ENV DLURL https://raw.githubusercontent.com/rohankmr414/CSGO
 
+# Create autoupdate config
+# Add entry script & ESL config
+# Remove packages and tidy up
 RUN set -x \
-	# Install, update & upgrade packages
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends --no-install-suggests \
-		wget=1.21-1+deb11u1 \
-		ca-certificates=20210119 \
-		lib32z1=1:1.2.11.dfsg-2+deb11u1 \
+		unzip \
+		wget=1.20.1-1.1 \
+		ca-certificates=20200601~deb10u2 \
+		lib32z1=1:1.2.11.dfsg-1 \
 	&& mkdir -p "${STEAMAPPDIR}" \
-	# Add entry script
 	&& wget --max-redirect=30 "${DLURL}/master/etc/entry.sh" -O "${HOMEDIR}/entry.sh" \
 	&& { \
 		echo '@ShutdownOnFailedCommand 1'; \
@@ -29,10 +33,9 @@ RUN set -x \
 		echo 'quit'; \
 	   } > "${HOMEDIR}/${STEAMAPP}_update.txt" \
 	&& chmod +x "${HOMEDIR}/entry.sh" \
-	&& chown -R "${USER}:${USER}" "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}" "${HOMEDIR}/${STEAMAPP}_update.txt" \
-	# Clean up
+	&& chown -R "${USER}:${USER}" "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}" "${HOMEDIR}/${STEAMAPP}_update.txt" \	
 	&& rm -rf /var/lib/apt/lists/* 
-
+	
 ENV SRCDS_FPSMAX=300 \
 	SRCDS_TICKRATE=128 \
 	SRCDS_PORT=27015 \
@@ -40,7 +43,6 @@ ENV SRCDS_FPSMAX=300 \
 	SRCDS_CLIENT_PORT=27005 \
 	SRCDS_NET_PUBLIC_ADDRESS="0" \
 	SRCDS_IP="0" \
-	SRCDS_LAN="0" \
 	SRCDS_MAXPLAYERS=14 \
 	SRCDS_TOKEN=0 \
 	SRCDS_RCONPW="changeme" \
@@ -56,8 +58,9 @@ ENV SRCDS_FPSMAX=300 \
 	SRCDS_WORKSHOP_AUTHKEY="" \
 	ADDITIONAL_ARGS=""
 
-# Switch to user
 USER ${USER}
+
+VOLUME ${STEAMAPPDIR}
 
 WORKDIR ${HOMEDIR}
 
